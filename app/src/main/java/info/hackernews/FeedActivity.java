@@ -6,15 +6,21 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import java.util.ArrayList;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import info.hackernews.models.Posts;
 import nucleus.factory.RequiresPresenter;
 import nucleus.view.NucleusAppCompatActivity;
+import rx.Observable;
+import rx.functions.Action1;
 
 /**
  * Activity which loads the TopStories
@@ -22,12 +28,17 @@ import nucleus.view.NucleusAppCompatActivity;
  */
 
 @RequiresPresenter(FeedActivityPresenter.class)
-public class FeedActivity extends NucleusAppCompatActivity<FeedActivityPresenter>  {
+public class FeedActivity extends NucleusAppCompatActivity<FeedActivityPresenter> {
 
-    @BindView(R.id.activity_feeds) View layoutView;
-    @BindView(R.id.feeds_list) RecyclerView feedsList;
-    @BindView(R.id.swipe_refresh_feeds) SwipeRefreshLayout mSwipeRefreshLayout;
+    @BindView(R.id.activity_feeds)
+    View layoutView;
+    @BindView(R.id.feeds_list)
+    RecyclerView feedsList;
+    @BindView(R.id.swipe_refresh_feeds)
+    SwipeRefreshLayout mSwipeRefreshLayout;
 
+    ArrayList<Integer> items = new ArrayList<>();
+    ArrayList<Posts> posts = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,11 +56,21 @@ public class FeedActivity extends NucleusAppCompatActivity<FeedActivityPresenter
         bindEvents();
     }
 
+    private void bindEvents() {
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                loadFeeds();
+            }
+        });
+    }
+
     public void onResult(String response) {
-        if(response != null) {
+        Observable<int[]> observable;
+        if (response != null) {
             try {
                 JSONArray jsonArray = new JSONArray(response);
-
+                parseJSON(jsonArray);
             } catch (JSONException e1) {
                 showError("Something went wrong");
             }
@@ -59,18 +80,35 @@ public class FeedActivity extends NucleusAppCompatActivity<FeedActivityPresenter
 
     }
 
-    public void showError(String error) {
-        Snackbar.make(layoutView,error,Snackbar.LENGTH_LONG);
+    private void parseJSON(JSONArray jsonArray) {
+        try {
+            for (int i = 0; i < jsonArray.length(); i++) {
+                items.add((Integer) jsonArray.get(i));
+            }
+        } catch (Exception e) {
+            Log.e("Exception", e.getLocalizedMessage());
+        } finally {
+            Observable.from(items)
+                    .subscribe(new Action1<Integer>() {
+                        @Override
+                        public void call(Integer integer) {
+                            Posts post = new Posts();
+                            post.set_id(integer);
+                        }
+                    }, new Action1<Throwable>() {
+                        @Override
+                        public void call(Throwable throwable) {
+                            Log.e("Error", throwable.getLocalizedMessage());
+                        }
+                    });
+        }
     }
 
-    private void bindEvents() {
-        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                loadFeeds();
-            }
-        });
+
+    public void showError(String error) {
+        Snackbar.make(layoutView, error, Snackbar.LENGTH_LONG);
     }
+
 
     private void loadFeeds() {
     }

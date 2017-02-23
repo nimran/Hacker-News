@@ -6,7 +6,7 @@ import android.text.TextUtils;
 import info.hackernews.network.ServiceManager;
 import info.hackernews.utils.AppStack;
 import info.hackernews.utils.Constants;
-import nucleus.presenter.Presenter;
+import nucleus.presenter.RxPresenter;
 
 /**
  * Presenter class responsible for
@@ -14,10 +14,12 @@ import nucleus.presenter.Presenter;
  */
 
 
-public class FeedActivityPresenter extends Presenter<FeedActivity> {
+public class FeedActivityPresenter extends RxPresenter<FeedActivity> {
 
-    ServiceManager serviceManager;
-    FeedActivity feedActivity;
+    private ServiceManager serviceManager;
+    private FeedActivity feedActivity;
+
+
     @Override
     protected void onCreate(Bundle savedState) {
         super.onCreate(savedState);
@@ -35,6 +37,7 @@ public class FeedActivityPresenter extends Presenter<FeedActivity> {
     @Override
     protected void onDropView() {
         super.onDropView();
+        serviceManager = null;
     }
 
     private void loadServiceCall() {
@@ -54,12 +57,4 @@ public class FeedActivityPresenter extends Presenter<FeedActivity> {
             }
         });
     }
-
-//    interface View {
-//        void bindViews();
-//
-//        void onResult(String response);
-//
-//        void showError(String error);
-//    }
 }
