@@ -17,7 +17,6 @@ public class AppStack {
     public Object getStackValue(String key) {
         return mapValues.get(key);
     }
-
     public String getStackString(String key) {
         String val = null;
         Object obj = mapValues.get(key);

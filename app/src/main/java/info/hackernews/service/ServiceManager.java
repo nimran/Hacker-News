@@ -1,4 +1,4 @@
-package info.hackernews.network;
+package info.hackernews.service;
 
 import android.app.Activity;
 import android.os.AsyncTask;

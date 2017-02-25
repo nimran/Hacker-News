@@ -1,5 +1,7 @@
 package info.hackernews.models;
 
+import java.util.List;
+
 /**
  * Created by imran on 23/02/17.
  * <p>
@@ -15,6 +17,25 @@ public class Posts {
     private int _comments;
     private long _time;
     private String _url;
+    private boolean _hasDataLoaded;
+    private String _type;
+    private List<Integer> kids;
+
+    public boolean is_hasDataLoaded() {
+        return _hasDataLoaded;
+    }
+
+    public List<Integer> getKids() {
+        return kids;
+    }
+
+    public void setKids(List<Integer> kids) {
+        this.kids = kids;
+    }
+
+    public void set_hasDataLoaded(boolean _hasDataLoaded) {
+        this._hasDataLoaded = _hasDataLoaded;
+    }
 
     public Integer get_id() {
         return _id;
@@ -71,5 +92,21 @@ public class Posts {
 
     public void set_comments(int _comments) {
         this._comments = _comments;
+    }
+
+    public boolean isHasDataLoaded() {
+        return _hasDataLoaded;
+    }
+
+    public void setHasDataLoaded(boolean _hasDataLoaded) {
+        this._hasDataLoaded = _hasDataLoaded;
+    }
+
+    public String get_type() {
+        return _type;
+    }
+
+    public void set_type(String _type) {
+        this._type = _type;
     }
 }

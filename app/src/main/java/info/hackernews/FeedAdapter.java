@@ -7,6 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.elyeproj.loaderviewlibrary.LoaderTextView;
+
 import java.util.ArrayList;
 
 import butterknife.BindView;
@@ -20,14 +22,20 @@ import info.hackernews.utils.AppUtils;
  * HackerNews
  */
 
-public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.FeedViewHolder>{
+public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.FeedViewHolder> {
 
     private Activity mActivity;
     private ArrayList<Posts> postsArrayList;
+    private FeedItemsInterface feedItemsInterface;
+
 
     public FeedAdapter(Activity mActivity, ArrayList<Posts> postsArrayList) {
         this.mActivity = mActivity;
         this.postsArrayList = postsArrayList;
+    }
+
+    void setOnItemChangeListener(FeedItemsInterface feedItemsInterface) {
+        this.feedItemsInterface = feedItemsInterface;
     }
 
     @Override
@@ -41,12 +49,17 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.FeedViewHolder
     @Override
     public void onBindViewHolder(FeedViewHolder holder, int position) {
         Posts posts = postsArrayList.get(position);
-        holder.postAuthorName.setText(posts.get_author());
-        holder.postTime.setText(AppUtils.getRelativeTime(posts.get_time()));
-        holder.postDesc.setText(posts.get_title());
-
-        holder.postFavCount.setText(AppUtils.getPoints(posts.get_points()));
-        holder.postCommentsCount.setText(AppUtils.getCommentsCount(posts.get_comments()));
+        feedItemsInterface.onFeedItemChanged(position);
+        if(posts != null ) {
+            posts = App.getDatabase().getPost(posts.get_id());
+            if (posts != null && posts.isHasDataLoaded()) {
+                holder.postAuthorName.setText(posts.get_author());
+                holder.postTime.setText(AppUtils.getRelativeTime(posts.get_time()));
+                holder.postDesc.setText(posts.get_title());
+                holder.postFavCount.setText(AppUtils.getPoints(posts.get_points()));
+                holder.postCommentsCount.setText(AppUtils.getCommentsCount(posts.get_comments()));
+            }
+        }
     }
 
     @Override
@@ -56,11 +69,17 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.FeedViewHolder
 
     class FeedViewHolder extends RecyclerView.ViewHolder {
 
-        @BindView(R.id.post_author_name) TextView postAuthorName;
-        @BindView(R.id.post_timestamp) TextView postTime;
-        @BindView(R.id.post_description) TextView postDesc;
-        @BindView(R.id.post_fav_count) TextView postFavCount;
-        @BindView(R.id.post_comments_count) TextView postCommentsCount;
+        @BindView(R.id.post_author_name)
+        LoaderTextView postAuthorName;
+        @BindView(R.id.post_timestamp)
+        TextView postTime;
+        @BindView(R.id.post_description)
+        TextView postDesc;
+        @BindView(R.id.post_fav_count)
+        TextView postFavCount;
+        @BindView(R.id.post_comments_count)
+        TextView postCommentsCount;
+
 
         FeedViewHolder(View itemView) {
             super(itemView);
